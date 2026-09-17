@@ -1,0 +1,27 @@
+name: Teste SRVDEV
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  teste:
+    runs-on: self-hosted
+
+    steps:
+      - name: Informações do servidor
+        run: |
+          echo "===== SRVDEV ====="
+          hostname
+          echo "===== SISTEMA ====="
+          uname -a
+          echo "===== DOCKER ====="
+          docker --version
+          echo "===== PHP ====="
+          php --version
+          echo "===== PYTHON ====="
+          python3 --version
+          echo "===== NODE ====="
+          node --version
+          echo "===== ANSIBLE ====="
+          ansible --version
