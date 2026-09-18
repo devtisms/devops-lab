@@ -1,1 +1,55 @@
+name: CI - DevOps Lab
 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Docker
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Informações do ambiente
+        run: |
+          echo "===== HOST ====="
+          hostname
+
+          echo "===== USUÁRIO ====="
+          whoami
+
+          echo "===== GIT ====="
+          git --version
+
+          echo "===== DOCKER ====="
+          docker --version
+
+          echo "===== PHP ====="
+          php8.5 --version
+
+          echo "===== PYTHON ====="
+          python3 --version
+
+          echo "===== NODE ====="
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+          node --version
+
+          echo "===== ANSIBLE ====="
+          ansible --version | head -2
+
+      - name: Docker Build
+        run: |
+          docker build -t devops-lab:${{ github.sha }} .
+
+      - name: Verificar imagem
+        run: |
+          docker images devops-lab
