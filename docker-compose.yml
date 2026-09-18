@@ -1,1 +1,9 @@
-
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devops-lab-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
