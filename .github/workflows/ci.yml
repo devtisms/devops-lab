@@ -1,4 +1,4 @@
-name: CI - DevOps Lab
+name: CI/CD - DevOps Lab
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build Docker
+    name: Build e Deploy DEV
     runs-on: self-hosted
 
     steps:
@@ -48,8 +48,46 @@ jobs:
 
       - name: Docker Build
         run: |
-          docker build -t devops-lab:${{ github.sha }} .
+          docker build \
+            -t devops-lab:${{ github.sha }} \
+            -t devops-lab:dev \
+            .
 
-      - name: Verificar imagem
+      - name: Testar imagem
         run: |
-          docker images devops-lab
+          docker run -d \
+            --name devops-lab-test \
+            -p 8081:80 \
+            devops-lab:${{ github.sha }}
+
+          sleep 5
+
+          curl --fail http://localhost:8081
+
+      - name: Remover container de teste
+        if: always()
+        run: |
+          docker rm -f devops-lab-test 2>/dev/null || true
+
+      - name: Deploy DEV
+        run: |
+          docker rm -f devops-lab-web 2>/dev/null || true
+
+          docker run -d \
+            --name devops-lab-web \
+            --restart unless-stopped \
+            -p 8080:80 \
+            devops-lab:${{ github.sha }}
+
+      - name: Verificar Deploy DEV
+        run: |
+          sleep 5
+
+          docker ps --filter "name=devops-lab-web"
+
+          curl --fail http://localhost:8080
+
+          echo ""
+          echo "======================================"
+          echo "DEPLOY DEV REALIZADO COM SUCESSO"
+          echo "======================================"
